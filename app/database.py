@@ -15,12 +15,6 @@ def current_date() -> str:
     """Return the current date in Philippine time as YYYY-MM-DD."""
     return datetime.now(PHILIPPINES_TZ).date().isoformat()
 
-
-def current_timestamp() -> str:
-    """Return the current date and time in Philippine time, as an ISO string."""
-    return datetime.now(PHILIPPINES_TZ).isoformat(timespec="seconds")
-
-
 @contextmanager
 def database_connection() -> Iterator[sqlite3.Connection]:
     """Open a database connection, commit on success, roll back on error, then close."""
