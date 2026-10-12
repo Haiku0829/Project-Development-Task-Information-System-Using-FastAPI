@@ -1,7 +1,6 @@
 # School Library Management API
 
-A beginner-friendly FastAPI + SQLite project for a school's library. It keeps the original starter-project structure and expands it to manage borrowers, books, and borrowing/return transactions.
-
+A beginner-friendly FastAPI + SQLite project for a school's library. 
 ## Features
 
 - Choose `Student`, `Professor`, or `Staff` when borrowing a book.
