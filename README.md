@@ -8,9 +8,9 @@ A beginner-friendly FastAPI + SQLite project for a school's library. It keeps th
 - Automatically save a borrower the first time they borrow; no separate borrower registration is needed.
 - Add, edit, and delete books without an admin key (suitable for local demos/testing).
 - View books and current available-copy counts.
-- Record book/borrower creation dates automatically (date only), and borrowing date/time in Philippine time.
+- Record book/borrower creation dates automatically (date only), and borrowing date.
 - Require a due date when borrowing.
-- Record the actual return date/time automatically.
+- Record the actual return date automatically.
 - Prevent borrowing when no copies are available.
 - Restore available-copy counts when a book is returned.
 - View all borrowing records and overdue records.
@@ -86,7 +86,7 @@ Use `POST /borrow-records`. Enter the borrower's school ID, name, role, book ID,
 
 `borrower_type` must be `Student`, `Professor`, or `Staff`. The first time someone borrows, their details are saved automatically. For future borrowing, use the same unique `borrower_id`; the system reuses the existing borrower record. No separate `POST /borrow-records` (borrower details are entered as part of borrowing) step is needed.
 
-`book_id` is the numeric database ID returned when a book is added. The borrowing date/time is recorded automatically and the available-copy count decreases by one.
+`book_id` is the numeric database ID returned when a book is added. The borrowing date is recorded automatically and the available-copy count decreases by one.
 
 ### 4. Return a book
 
@@ -106,8 +106,7 @@ Use `POST /borrow-records/1/return`, replacing `1` with the borrow transaction I
 
 - This version is an API, not a finished visual website. `/docs` is for development/testing.
 - This demo does not require an admin key. Anyone who can access the API can add, edit, or delete books, so add authentication before deploying it publicly.
-- Due dates are entered as dates (`YYYY-MM-DD`). Borrowed and returned timestamps use the `Asia/Manila` timezone.
-- Before deployment, add automated tests, backups, and the school's specific loan policies.
+- Due dates are entered as dates (`YYYY-MM-DD`).
 
 ### Update only the fields you want
 
@@ -122,15 +121,5 @@ Use the single `PUT /books/{book_id}` edit endpoint to change only the fields yo
 The ISBN, author, and copy count remain unchanged. Use `GET /books/{book_id}` first if you want to display the saved/original values in your interface. This project contains an API only. The endpoint preserves omitted fields, but automatically displaying existing values in editable form inputs requires a frontend interface.
 
 
-## Book update screen
-
-Run `python -m uvicorn main:app --reload`, then open http://127.0.0.1:8000/manage-books. Enter a book ID and click **Get book details** to load its current information before editing and saving. Swagger documentation remains at http://127.0.0.1:8000/docs. On Windows, `tzdata` is included in requirements for the Asia/Manila timezone.
-
-## Book update screen
-
-Run `python -m uvicorn main:app --reload`, then open http://127.0.0.1:8000/manage-books. Enter a book ID and click **Get book details** to load its current information before editing and saving. Swagger documentation remains at http://127.0.0.1:8000/docs. On Windows, `tzdata` is included in requirements for the Asia/Manila timezone.
 
 
-### Updating books
-
-Open `http://127.0.0.1:8000/manage-books`, enter a book ID, and click **Get book details**. The page loads the existing record before editing. ISBN is shown as read-only and cannot be changed; edit the title, author, or total copies, then save. Swagger UI may display example values such as `string`; those are placeholders, not values loaded from your database.
