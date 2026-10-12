@@ -5,7 +5,7 @@ from typing import Literal
 
 from pydantic import BaseModel, Field, field_validator
 
-from app.database import current_date, current_timestamp
+from app.database import current_date
 
 
 BorrowerType = Literal["Student", "Professor", "Staff"]
@@ -234,7 +234,7 @@ class BorrowRecord:
                 "INSERT INTO borrow_records "
                 "(borrower_record_id, book_id, borrowed_at, due_date, status) "
                 "VALUES (?, ?, ?, ?, 'Borrowed')",
-                (borrower_record_id, data.book_id, current_timestamp(), data.due_date.isoformat()),
+                (borrower_record_id, data.book_id, current_date(), data.due_date.isoformat()),
             )
             row = connection.execute(
                 """
@@ -263,7 +263,7 @@ class BorrowRecord:
 
             connection.execute(
                 "UPDATE borrow_records SET returned_at = ?, status = 'Returned' WHERE id = ?",
-                (current_timestamp(), record_id),
+                (current_date(), record_id),
             )
             connection.execute(
                 "UPDATE books SET available_copies = available_copies + 1 WHERE id = ?",
