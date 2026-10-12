@@ -224,7 +224,7 @@ class BorrowRecord:
                 raise LookupError("Book was not found.")
             if book["available_copies"] < 1:
                 raise ValueError("No copies of this book are currently available.")
-            if data.due_date < date.today():
+            if data.due_date < date.fromisoformat(current_date()):
                 raise ValueError("The due date cannot be in the past.")
 
             connection.execute(
