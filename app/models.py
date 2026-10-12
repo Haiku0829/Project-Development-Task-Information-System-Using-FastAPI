@@ -5,7 +5,7 @@ from typing import Literal
 
 from pydantic import BaseModel, Field, field_validator
 
-from app.database import current_date, current_timestamp
+from app.database import current_date
 
 
 BorrowerType = Literal["Student", "Professor", "Staff"]
@@ -125,7 +125,7 @@ class Book:
                 "INSERT INTO books (isbn, title, author, total_copies, available_copies, created_at) "
                 "VALUES (?, ?, ?, ?, ?, ?)",
                 (data.isbn or None, data.title.strip(), data.author.strip(), data.total_copies,
-                 data.total_copies, current_date()),
+                    data.total_copies, current_date()),
             )
             row = connection.execute(
                 "SELECT id, isbn, title, author, total_copies, available_copies, created_at "
@@ -156,7 +156,7 @@ class Book:
             connection.execute(
                 "UPDATE books SET isbn = ?, title = ?, author = ?, total_copies = ?, available_copies = ? WHERE id = ?",
                 (isbn, title.strip(), author.strip(), total_copies,
-                 total_copies - borrowed_copies, book_id),
+                    total_copies - borrowed_copies, book_id),
             )
             row = connection.execute(
                 "SELECT id, isbn, title, author, total_copies, available_copies, created_at "
@@ -191,7 +191,8 @@ class BorrowRecord:
         """
         params: tuple = ()
         if overdue_only:
-            sql += " WHERE br.status = 'Borrowed' AND br.due_date < date('now', 'localtime')"
+                sql += " WHERE br.status = 'Borrowed' AND br.due_date < ?"
+                params = (current_date(),)
         sql += " ORDER BY br.borrowed_at DESC"
         with database_connection() as connection:
             rows = connection.execute(sql, params).fetchall()
@@ -234,13 +235,13 @@ class BorrowRecord:
                 "INSERT INTO borrow_records "
                 "(borrower_record_id, book_id, borrowed_at, due_date, status) "
                 "VALUES (?, ?, ?, ?, 'Borrowed')",
-                (borrower_record_id, data.book_id, current_timestamp(), data.due_date.isoformat()),
+                (borrower_record_id, data.book_id, current_date(), data.due_date.isoformat()),
             )
             row = connection.execute(
                 """
                 SELECT br.id, b.borrower_id, b.name AS borrower_name,
-                       b.borrower_type, bk.id AS book_id, bk.title AS book_title,
-                       br.borrowed_at, br.due_date, br.returned_at, br.status
+                b.borrower_type, bk.id AS book_id, bk.title AS book_title,
+                br.borrowed_at, br.due_date, br.returned_at, br.status
                 FROM borrow_records br
                 JOIN borrowers b ON b.id = br.borrower_record_id
                 JOIN books bk ON bk.id = br.book_id
@@ -263,7 +264,7 @@ class BorrowRecord:
 
             connection.execute(
                 "UPDATE borrow_records SET returned_at = ?, status = 'Returned' WHERE id = ?",
-                (current_timestamp(), record_id),
+                (current_date(), record_id),
             )
             connection.execute(
                 "UPDATE books SET available_copies = available_copies + 1 WHERE id = ?",
@@ -272,8 +273,8 @@ class BorrowRecord:
             row = connection.execute(
                 """
                 SELECT br.id, b.borrower_id, b.name AS borrower_name,
-                       b.borrower_type, bk.id AS book_id, bk.title AS book_title,
-                       br.borrowed_at, br.due_date, br.returned_at, br.status
+                b.borrower_type, bk.id AS book_id, bk.title AS book_title,
+                br.borrowed_at, br.due_date, br.returned_at, br.status
                 FROM borrow_records br
                 JOIN borrowers b ON b.id = br.borrower_record_id
                 JOIN books bk ON bk.id = br.book_id
